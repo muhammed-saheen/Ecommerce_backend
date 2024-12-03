@@ -12,7 +12,7 @@ namespace Ecommerce_app.Exception_handler
             catch (Exception ex) { 
              context.Response.StatusCode = 500;
              context.Response.ContentType = "text/plain";
-             context.Response.WriteAsync($"err:{ex}");
+             context.Response.WriteAsync($"errors:{ex}");
             }
         }
     }
