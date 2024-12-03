@@ -12,10 +12,10 @@ namespace Ecommerce_app.Services
         public Task<Result> Place_order(Guid userid, Guid productid, int quantity, Guid addressid);
         public Task<Result> update_order(Guid orderid, string status);
         public Task<Result> delete_order(Guid orderid);
-        public Task<ICollection<Order>> getallorder();
-        public  Task<Order> oderby_userid(Guid userid);
-
-        public Task<Result> AddAddress(Address_set_dto data);
+        public Task<ICollection<Orderview_dto>> getallorder();
+        public Task<ICollection<Orderview_dto>> oderby_userid(Guid userid);
+        
+        public Task<Result> AddAddress(Address_set_dto data,Guid userid);
 
         public  Task<Result> RemoveAddress(Guid adressid);
 
@@ -58,7 +58,7 @@ namespace Ecommerce_app.Services
                 quantity = quantity,
                 addressid = addressid,
                 orderstatus = "order placed ",
-                total_price=product.Price*quantity,
+                total_price=product.OfferPrice * quantity,
             };
 
             context.orders.AddAsync(order);
@@ -89,23 +89,34 @@ namespace Ecommerce_app.Services
             return new Result { Message="deleted order success ",Statuscode=200 };
         }
         
-        public async Task<ICollection<Order>> getallorder()
+        public async Task<ICollection<Orderview_dto>> getallorder()
         {
-            var response =await context.orders.ToListAsync();
-            return response;
+            var response = await context.orders.Include(o => o.product).Include(o => o.address).ToListAsync();
+            var mapped =mapper.Map<ICollection<Orderview_dto>>(response);
+            return mapped;
         }
-        public async Task<Order> oderby_userid(Guid userid) { 
-         var response =await context.orders.FirstOrDefaultAsync(x=>x.userid==userid);
+
+        //public async Task<ICollection<Orderview_dto>> getallorderUser(Guid userid)
+        //{
+        //    var response = await context.orders.Include(o => o.product).Include(o => o.address).Where(x=>x.userid==userid).ToListAsync();
+        //    var mapped = mapper.Map<ICollection<Orderview_dto>>(response);
+        //    return mapped;
+        //}
+
+        public async Task<ICollection<Orderview_dto>> oderby_userid(Guid userid) { 
+         var response =await context.orders.Include(o => o.product).Include(o => o.address).Where(x=>x.userid==userid).ToListAsync();
+         var mapped = mapper.Map<ICollection<Orderview_dto>>(response);
             if (response == null) {
                 throw new Exception("order doesnt exist for the user");
             }
-            return response;
+            return mapped;
         }
 
 
-        public async Task<Result> AddAddress(Address_set_dto data)
+        public async Task<Result> AddAddress(Address_set_dto data,Guid userid)
         {
             var mapped =mapper.Map<Address>(data);
+            mapped.userid = userid;
             await context.addresses.AddAsync(mapped);
             await context.SaveChangesAsync();
             return new Result { Message = "address added success", Statuscode = 200 };

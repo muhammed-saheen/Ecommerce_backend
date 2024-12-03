@@ -47,17 +47,29 @@ namespace Ecommerce_app.Controllers
 
         }
         [Authorize(Roles ="admin")]
-        [HttpGet("allorder")]
-        public async Task<IActionResult> Getallorder()
+        [HttpGet("allorder/admin")]
+        public async Task<IActionResult> GetallorderAdmin()
         {
             var response = await service.getallorder();
             return Ok(response);
 
         }
 
+       
+
         [Authorize(Roles = "User")]
-        [HttpGet("orderbyUser")]
-        public async Task<IActionResult> Orderbyuser(Guid userid)
+        [HttpGet("orderbyUser/user")]
+        public async Task<IActionResult> Orderbyuser()
+        {
+            var userid = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            var response = await service.oderby_userid(Guid.Parse(userid));
+            return Ok(response);
+
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpGet("orderbyUser/admin")]
+        public async Task<IActionResult> OrderbyuserAdmin(Guid userid)
         {
             var response = await service.oderby_userid(userid);
             return Ok(response);
@@ -67,7 +79,8 @@ namespace Ecommerce_app.Controllers
         [HttpPost("add-address")]
         public async Task<IActionResult> Addaddress([FromBody] Address_set_dto data)
         {
-            var response=await service.AddAddress(data);
+            var userid = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            var response =await service.AddAddress(data,Guid.Parse(userid));
             return StatusCode(response.Statuscode, response.Message);
         }
 

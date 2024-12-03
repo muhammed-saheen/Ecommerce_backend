@@ -41,6 +41,8 @@ namespace Ecommerce_app.Context
                 new User { Id = Guid.Parse("ffd7b3b8-50cd-4f7b-b8c1-d3d08f8bc53f"), Name = "saheen", Email = "sn@gmail.com", username = "saheen", Password = "$2a$11$Y7DBN5.aoCG5gPLYMDQJ1eapvNAsZL7H1mVn190TTAAs96dVmfNee", Role = "admin", Status = true, Phone = "8606524321" }
             );
             modelbuilder.Entity<User>().HasKey(x=>x.Id);
+
+            modelbuilder.Entity<Address>().HasOne(x => x.User).WithMany(y=>y.address).HasForeignKey(x => x.userid).OnDelete(DeleteBehavior.Restrict); ;
         }
 
 
@@ -59,14 +61,14 @@ namespace Ecommerce_app.Context
         public void Product_Configure(ModelBuilder modelbuilder) {
 
             modelbuilder.Entity<Product>().HasOne(s => s.category).WithMany(x => x.products).HasForeignKey(s => s.categoryid);
-            modelbuilder.Entity<Product>().Property(x => x.Price).HasPrecision(10, 2);
+            modelbuilder.Entity<Product>().Property(x => x.OfferPrice).HasPrecision(10, 2);
         }
 
         //wishlist
 
         public void Wishlist_configure(ModelBuilder modelbuilder)
         {
-            modelbuilder.Entity<Whishlist>().HasOne(x => x.Product).WithMany(y => y.whishlists).HasForeignKey(f => f.Productid);
+            modelbuilder.Entity<Whishlist>().HasOne(x => x.Product).WithMany().HasForeignKey(f => f.Productid);
         }
 
         //cartitem
@@ -76,7 +78,7 @@ namespace Ecommerce_app.Context
             modelbuilder.Entity<User>().HasOne(x=>x.cart).WithOne(y=>y.User).HasForeignKey<Cart>(f=>f.Userid);
             modelbuilder.Entity<Cart>().HasMany(x => x.cart_Items).WithOne(y => y.Cart).HasForeignKey(f => f.cart_id);
             modelbuilder.Entity<Cart>().Property(x=>x.totalprice).HasPrecision(10, 2);
-            modelbuilder.Entity<Cart_item>().HasOne(x => x.product).WithMany(y => y.cartItem).HasForeignKey(f => f.productid);
+            modelbuilder.Entity<Cart_item>().HasOne(x => x.product).WithMany().HasForeignKey(f => f.productid);
             modelbuilder.Entity<Cart_item>().Property(x=>x.price).HasPrecision(10, 2);
         }
 
@@ -84,11 +86,14 @@ namespace Ecommerce_app.Context
 
         public void Order_itemconfigure(ModelBuilder modelbuilder)
         {
-            modelbuilder.Entity<Order>().HasOne(x=>x.user).WithMany(y=>y.orders).HasForeignKey(f => f.userid);
-            modelbuilder.Entity<Order>().HasOne(x => x.address).WithMany().HasForeignKey(f => f.addressid);
+            modelbuilder.Entity<Order>().HasOne(x=>x.user).WithMany(y=>y.orders).HasForeignKey(f => f.userid).OnDelete(DeleteBehavior.Cascade);
+            modelbuilder.Entity<Order>().HasOne(x => x.address).WithMany().HasForeignKey(f => f.addressid).OnDelete(DeleteBehavior.NoAction);
             modelbuilder.Entity<Order>().HasOne(x=>x.product).WithMany().HasForeignKey(f => f.productid);
             modelbuilder.Entity<Order>().Property(x => x.total_price).HasPrecision(10, 2);
         }
+
+
+     
 
     }
 

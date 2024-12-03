@@ -7,6 +7,7 @@ using Ecommerce_app.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -36,6 +37,7 @@ namespace Ecommerce_app
                     Scheme = "bearer",
                     BearerFormat = "JWT"
                 };
+
 
                 c.AddSecurityDefinition("Bearer", securityScheme);
 
@@ -104,6 +106,7 @@ namespace Ecommerce_app
             app.UseAuthorization();
             app.UseMiddleware<Global_exception_handler>();
 
+            app.UseStaticFiles();
 
             app.MapControllers();
 

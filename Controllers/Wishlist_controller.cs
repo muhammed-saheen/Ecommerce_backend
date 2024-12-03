@@ -33,9 +33,9 @@ namespace Ecommerce_app.Controllers
         [Authorize(Roles = "User")]
         [HttpDelete("{id}")]
 
-        public async Task<IActionResult> Delete_wishliat(Guid productid)
+        public async Task<IActionResult> Delete_wishliat(Guid id)
         {
-            var response = await service.Remove_wishlist(productid);
+            var response = await service.Remove_wishlist(id);
             return StatusCode(response.Statuscode, response.Message);
         }
 

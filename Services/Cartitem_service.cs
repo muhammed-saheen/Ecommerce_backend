@@ -11,7 +11,7 @@ namespace Ecommerce_app.Services
     public interface ICartitem_service
     {
         public Task<Result> add_cartitem(Guid productid, Guid userid, int quantity);
-        public Task<List<Cart_itemView_dto>> get_cartitem(Guid userid);
+        public  Task<Cart_view> get_cartitem(Guid userid);
         public Task<Result> delete_cartitem(Guid itemid, Guid userid);
         public Task<Result> update_cartitem(Guid itemid, CartitemSet_dto data, Guid userid);
         public Task<Result> Checkout(Guid userid, Guid addressid);
@@ -41,34 +41,30 @@ namespace Ecommerce_app.Services
             var product = await context.products.FirstOrDefaultAsync(x => x.Id == productid);
             var cartitem = new Cart_item
             {
-                price = product.Price,
+                price = product.OfferPrice,
                 productid = productid,
                 cart_id = cart.Id,
-                quantity = quantity
+                quantity = quantity,
+               
             };
             await context.cart_Items.AddAsync(cartitem);
             await context.SaveChangesAsync();
-            cart.totalprice = context.cart_Items.Where(x => x.Id == cart.Id).Sum(y => y.product.Price * quantity);
-            cart.itemscount = context.cart_Items.Where(x => x.Id == cart.Id).Count();
+            cart.totalprice = context.cart_Items.Where(x => x.cart_id == cart.Id).Sum(y => y.price  * quantity);
+            cart.itemscount = context.cart_Items.Where(x => x.cart_id == cart.Id).Count();
             await context.SaveChangesAsync();
             return new Result { Message = "item added success", Statuscode = 200 };
 
         }
 
-        public async Task<List<Cart_itemView_dto>> get_cartitem(Guid userid)
+        public async Task<Cart_view> get_cartitem(Guid userid)
         {
-            var cart = await context.carts.FirstOrDefaultAsync(x => x.Userid == userid);
+            var cart = await context.carts.Include(s=>s.cart_Items).FirstOrDefaultAsync(x => x.Userid == userid);
             if (cart == null)
             {
                 throw new Exception("Cart not found for the given user.");
             }
 
-            var cartitem = await context.cart_Items
-                                        .Where(x => x.cart_id == cart.Id)
-                                        .Include(p => p.product)
-                                        .ToListAsync();
-
-            var mapped = mapper.Map<List<Cart_itemView_dto>>(cartitem);
+            var mapped = mapper.Map<Cart_view>(cart);
 
             return mapped;
         }
@@ -85,7 +81,7 @@ namespace Ecommerce_app.Services
             context.cart_Items.Remove(response);
             var quantity = response.quantity;
             await context.SaveChangesAsync();
-            cart.totalprice = context.cart_Items.Where(x => x.Id == cart.Id).Sum(y => y.product.Price * quantity);
+            cart.totalprice = context.cart_Items.Where(x => x.Id == cart.Id).Sum(y => y.product.OfferPrice * quantity);
             cart.itemscount = context.cart_Items.Where(x => x.Id == cart.Id).Count();
             await context.SaveChangesAsync();
             return new Result { Message = "item removed successfull", Statuscode = 202 };
@@ -110,7 +106,7 @@ namespace Ecommerce_app.Services
                 return new Result { Message = "item doesnt exist", Statuscode = 404 };
             }
             response.quantity = data.quantity;
-            cart.totalprice = context.cart_Items.Where(x => x.Id == cart.Id).Sum(y => y.product.Price * response.quantity);
+            cart.totalprice = context.cart_Items.Where(x => x.Id == cart.Id).Sum(y => y.product.OfferPrice * response.quantity);
             response.price = response.quantity * response.price;
             await context.SaveChangesAsync();
             return new Result { Message = "updated successfully ", Statuscode = 200 };
@@ -130,7 +126,9 @@ namespace Ecommerce_app.Services
                 var response=await order_Service.Place_order(userid,item.productid,item.quantity, addressid);
         
                 context.cart_Items.Remove(item);
-                
+                cart.itemscount = 0;
+                cart.totalprice = 0;
+                await context.SaveChangesAsync();
             }
             await context.SaveChangesAsync();
             return new Result { Message ="order placed success ",Statuscode = 200 };

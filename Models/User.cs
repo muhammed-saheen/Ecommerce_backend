@@ -24,5 +24,7 @@ namespace Ecommerce_app.Models
         public Cart cart { get; set; }
 
         public ICollection<Order> orders { get; set; }
+
+        public ICollection<Address> address { get; set; }
     }
 }

@@ -16,9 +16,16 @@ namespace Ecommerce_app.DTO
         [Required]
         public decimal Price { get; set; }
 
+        [Required] public decimal OfferPrice { get; set; }
+
+
+        [Required]
+
         public int quantity { get; set; }
 
-        public string Category_name { get; set; }
+        [Required]
+
+        public Guid Categoryid { get; set; }
 
     }
 }

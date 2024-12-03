@@ -32,10 +32,18 @@ namespace Ecommerce_app.Controllers
             return Ok(response);
         }
 
-        [HttpGet("{category}")]
+        [HttpGet("category/{category}")]
         public async Task<IActionResult> ProductbyCatgory(string category)
         {
-            var response = service.get_product_by_category(category);
+            var response = await service.get_product_by_category(category);
+            return Ok(response);
+        }
+
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Search_product(string name)
+        {
+            var response = await service.Search_product(name);
             return Ok(response);
         }
         [HttpGet("paginated")]
@@ -63,8 +71,12 @@ namespace Ecommerce_app.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPost("add_product")]
-        public async Task<IActionResult> Addproduct([FromBody] Product_dto data)
+        public async Task<IActionResult> Addproduct([FromBody] Product_dto data  )
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); 
+            }
             var response = await service.Add_new_product(data);
             return StatusCode(response.Statuscode, response.Message);
         }

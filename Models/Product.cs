@@ -13,16 +13,18 @@ namespace Ecommerce_app.Models
         public string Description { get; set; }
 
         [Required]
-        public decimal Price { get; set; }
+        public decimal OfferPrice { get; set; }
 
+        [Required] public decimal Price { get; set; }
+
+        [Required]
         public int quantity { get; set; }
 
         public Guid categoryid { get; set; }
         public Category category { get; set; }
 
-        public ICollection<Cart_item> cartItem { get; set; }
+        //public ICollection<Cart_item> cartItem { get; set; }
 
-        public ICollection<Whishlist> whishlists { get; set; }
 
     }
 }

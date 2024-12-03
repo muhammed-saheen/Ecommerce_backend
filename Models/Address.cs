@@ -10,5 +10,8 @@
         public string PostalCode { get; set; }
         public string Phone { get; set; }
 
+        public Guid userid { get; set; }
+        public User User { get; set; }
+
     }
 }
