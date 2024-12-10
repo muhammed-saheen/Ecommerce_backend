@@ -47,6 +47,10 @@ namespace Ecommerce_app.Services
         public async Task<Generic_response<Product_dto>> Get_product_by_id(Guid id)
         {
             var response = await context.products.FirstOrDefaultAsync(x => x.Id == id);
+            if (response==null)
+            {
+                return new Generic_response<Product_dto> { message = "product not found", status = false, statuscode = 404 };
+            }
             var mapped = mapper.Map<Product_dto>(response);
             return new Generic_response<Product_dto> { message="succes",status=true,data=mapped,statuscode=200};
         }
@@ -54,6 +58,10 @@ namespace Ecommerce_app.Services
         public async Task<Generic_response<IEnumerable<Product_dto>>> get_product_by_category(string category)
         {
             var response = await context.products.Where(x => x.category.name == category).Include(x => x.category).ToListAsync();
+            if (!response.Any())
+            {
+                return new Generic_response<IEnumerable<Product_dto>> { message = "category doesnot exists", status = false , statuscode = 404 };
+            }
             var mapped = mapper.Map<IEnumerable<Product_dto>>(response);
             return new Generic_response<IEnumerable<Product_dto>> { data=mapped,message="success",status=true,statuscode=200};
         }
@@ -61,6 +69,10 @@ namespace Ecommerce_app.Services
         public async Task<Generic_response<IEnumerable<Product_dto>>> Search_product(string name )
         {
             var response = await context.products.Where(x => x.Name.Contains(name) || x.Description.Contains(name)).Include(x => x.category).ToListAsync();
+            if (!response.Any())
+            {
+                return new Generic_response<IEnumerable<Product_dto>> { message = "No match found", status = false, statuscode = 404 };
+            }
             var mapped = mapper.Map<IEnumerable<Product_dto>>(response);
             return new Generic_response<IEnumerable<Product_dto>> { data=mapped,status=true,message="success",statuscode=200};
         }

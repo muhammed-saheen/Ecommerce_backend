@@ -49,7 +49,7 @@ namespace Ecommerce_app.Services
             };
             await context.cart_Items.AddAsync(cartitem);
             await context.SaveChangesAsync();
-            cart.totalprice = context.cart_Items.Where(x => x.cart_id == cart.Id).Sum(y => y.price  * quantity);
+            cart.totalprice = context.cart_Items.Where(x => x.cart_id == cart.Id).Sum(y => y.price  * y.quantity);
             cart.itemscount = context.cart_Items.Where(x => x.cart_id == cart.Id).Count();
             await context.SaveChangesAsync();
             return new Result { Message = "item added success", Statuscode = 200 };
@@ -58,7 +58,7 @@ namespace Ecommerce_app.Services
 
         public async Task<Cart_view> get_cartitem(Guid userid)
         {
-            var cart = await context.carts.Include(s=>s.cart_Items).FirstOrDefaultAsync(x => x.Userid == userid);
+            var cart = await context.carts.Include(s=>s.cart_Items).ThenInclude(y=>y.product).FirstOrDefaultAsync(x => x.Userid == userid);
             if (cart == null)
             {
                 throw new Exception("Cart not found for the given user.");

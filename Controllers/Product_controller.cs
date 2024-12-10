@@ -28,15 +28,15 @@ namespace Ecommerce_app.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Productbyid(Guid id)
         {
-            var response = service.Get_product_by_id(id);
-            return Ok(response);
+            var response = await service.Get_product_by_id(id);
+            return StatusCode(response.statuscode, response);
         }
 
         [HttpGet("category/{category}")]
         public async Task<IActionResult> ProductbyCatgory(string category)
         {
             var response = await service.get_product_by_category(category);
-            return Ok(response);
+            return StatusCode(response.statuscode,response);
         }
 
 
@@ -44,7 +44,7 @@ namespace Ecommerce_app.Controllers
         public async Task<IActionResult> Search_product(string name)
         {
             var response = await service.Search_product(name);
-            return Ok(response);
+            return StatusCode(response.statuscode, response);
         }
         [HttpGet("paginated")]
         public async Task<IActionResult> ProductPaginated(int pageNumber,int pagesize)
