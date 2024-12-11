@@ -13,7 +13,7 @@ namespace Ecommerce_app.DTO
 
         [Required(ErrorMessage = "Price is required.")]
         [Range(0.01, double.MaxValue,ErrorMessage = "Price must be greater than zero.")]
-        
+
         public decimal? OfferPrice { get; set; }
 
         [Required] public decimal? Price { get; set; }
