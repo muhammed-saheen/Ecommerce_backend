@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  ecommerce-app:
+    build:
+      context: .
+      dockerfile: Dockerfile  # This is your Dockerfile
+    ports:
+      - "8080:8080"  # Expose port 8080 for the ASP.NET Core app
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=db:1433;Database=Ecommerce_db;User Id=sa;Password=YourStrongPassword123;TrustServerCertificate=True
+    depends_on:
+      - db
+    networks:
+      - ecommerce-net
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest  # SQL Server image
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrongPassword123
+      - DB_NAME=Ecommerce_db
+    ports:
+      - "1433:1433"  # Expose port 1433 for SQL Server
+    networks:
+      - ecommerce-net
+    volumes:
+      - sqlserver-data:/var/opt/mssql  # Persist SQL Server data
+
+networks:
+  ecommerce-net:
+    driver: bridge
+
+volumes:
+  sqlserver-data:
+    driver: local
